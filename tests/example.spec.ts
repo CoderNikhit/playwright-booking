@@ -1,5 +1,7 @@
 import { test, expect } from '@playwright/test';
 
+declare const process: { env: Record<string, string | undefined> };
+
 const RESERVATION_URL = 'https://telfair.onlinecourtreservations.com/reservations';
 const USER_ID = process.env.BOOKING_USER_ID || '35602';
 const PASSWORD = process.env.BOOKING_PASSWORD || 'Rajranju';
