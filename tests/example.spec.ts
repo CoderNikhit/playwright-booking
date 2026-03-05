@@ -3,11 +3,14 @@ import { test, expect } from '@playwright/test';
 declare const process: { env: Record<string, string | undefined> };
 
 const RESERVATION_URL = 'https://telfair.onlinecourtreservations.com/reservations';
-const USER_ID = process.env.BOOKING_USER_ID || '35602';
-const PASSWORD = process.env.BOOKING_PASSWORD || 'Rajranju';
+const USER_ID = process.env.BOOKING_USER_ID || '';
+const PASSWORD = process.env.BOOKING_PASSWORD || '';
 
 test('login and book pickleball court @booking', async ({ page }) => {
   test.setTimeout(120000);
+
+  expect(USER_ID, 'Missing BOOKING_USER_ID secret/env var').toBeTruthy();
+  expect(PASSWORD, 'Missing BOOKING_PASSWORD secret/env var').toBeTruthy();
 
   // Navigate to reservation page
   await page.goto(RESERVATION_URL);

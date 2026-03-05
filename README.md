@@ -1,68 +1,55 @@
-# Playwright Automated Tests
+# Pickleball Reservation Automation
 
-This project demonstrates Playwright test automation for the Playwright documentation website.
+This repository contains a Playwright automation that signs in, navigates to the reservation calendar, and attempts to book an available court slot.
 
-## Setup
+## What It Does
 
-1. Install dependencies:
-   ```bash
-   npm install
-   ```
+- Runs daily via GitHub Actions.
+- Uses `America/Chicago` 7:00 AM scheduling (CST/CDT-safe).
+- Attempts booking within the configured day window (default day `+7`).
+- Tries preferred times from `6:00 PM` onward.
+- Confirms a booking only if the slot is no longer empty after reserve action.
 
-## Running Tests
+## Recipient Setup (Share This)
 
-- **Run all tests in headless mode:**
-  ```bash
-  npm test
-  ```
+1. Fork or copy this repository.
+2. In repo `Settings` -> `Secrets and variables` -> `Actions`, add:
+   - `BOOKING_USER_ID`
+   - `BOOKING_PASSWORD`
+3. Optional repo variables (same page, `Variables` tab):
+   - `BOOKING_DAY_OFFSET_START` (default `7`)
+   - `BOOKING_DAY_OFFSET_END` (default `7`)
+4. Open `Actions` -> `Daily Booking` -> `Run workflow` once to verify.
 
-- **Run tests with browser visible:**
-  ```bash
-  npm run test:headed
-  ```
+## Change User ID or Password Anytime
 
-- **Run tests in UI mode (interactive):**
-  ```bash
-  npm run test:ui
-  ```
+Do not edit code. Update GitHub repository secrets:
 
-- **Debug tests:**
-  ```bash
-  npm run test:debug
-  ```
+1. Go to `Settings` -> `Secrets and variables` -> `Actions`.
+2. Edit `BOOKING_USER_ID` and/or `BOOKING_PASSWORD`.
+3. Next scheduled run uses the new values automatically.
 
-## Test Files
+## Scheduling
 
-- `tests/example.spec.ts` - Sample tests that automate the Playwright website
+Workflow file: `.github/workflows/booking.yml`
 
-## Test Coverage
+- Runs daily at 7:00 AM Chicago time.
+- Uses dual UTC cron entries plus a Chicago-time gate to handle CST/CDT changes.
 
-The test suite includes:
-1. **Basic Navigation** - Testing page navigation and title verification
-2. **Interactions** - Testing clicks, link verification, and URL checking
-3. **Content Verification** - Testing page accessibility and error handling
+## Run Locally (Optional)
 
-## Key Playwright Concepts Used
-
-- **Navigation**: `page.goto()` for navigating to URLs
-- **Locators**: `getByRole()` for finding elements by accessibility roles
-- **Actions**: `.click()` for clicking elements
-- **Assertions**: `toHaveTitle()`, `toHaveURL()`, `toBeVisible()` for verifying page state
-- **Test Hooks**: `beforeEach()` for setup before each test
-- **Test Organization**: `describe()` for grouping related tests
-
-## Configuration
-
-The `playwright.config.ts` file configures:
-- Test directory
-- Report generation (HTML)
-- Multiple browser projects (Chromium, Firefox, WebKit)
-- Screenshot on failure
-- Trace on first retry
-
-## Generated Reports
-
-After running tests, HTML reports are generated in the `playwright-report` directory. Open the report with:
 ```bash
-npx playwright show-report
+npm ci
+npx playwright install chromium
+BOOKING_USER_ID="your_id" BOOKING_PASSWORD="your_password" npx playwright test tests/example.spec.ts --project=chromium --grep "@booking"
 ```
+
+## Artifacts and Logs
+
+Each GitHub run uploads:
+
+- `playwright-report/`
+- `test-results/`
+- screenshots (`*.png`)
+
+Use these artifacts to inspect why a reservation did or did not complete.
