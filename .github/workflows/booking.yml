@@ -8,7 +8,30 @@ on:
   workflow_dispatch:
 
 jobs:
+  precheck:
+    runs-on: ubuntu-latest
+    outputs:
+      should_run: ${{ steps.local_time_gate.outputs.should_run }}
+
+    steps:
+      - name: Gate by America/Chicago 7:00 AM
+        id: local_time_gate
+        shell: bash
+        run: |
+          HOUR=$(TZ=America/Chicago date +%H)
+          MINUTE=$(TZ=America/Chicago date +%M)
+          DAY_OF_WEEK=$(TZ=America/Chicago date +%u)
+          if [[ "$HOUR" == "07" && "$MINUTE" == "00" && "$DAY_OF_WEEK" -ge 1 && "$DAY_OF_WEEK" -le 5 ]]; then
+            echo "should_run=true" >> "$GITHUB_OUTPUT"
+            echo "Running booking job at local Chicago weekday 07:00"
+          else
+            echo "should_run=false" >> "$GITHUB_OUTPUT"
+            echo "Skipping run at local Chicago time ${HOUR}:${MINUTE}, day ${DAY_OF_WEEK}"
+          fi
+
   book-court:
+    needs: precheck
+    if: needs.precheck.outputs.should_run == 'true' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     timeout-minutes: 20
 
@@ -36,23 +59,7 @@ jobs:
         if: steps.playwright-cache.outputs.cache-hit != 'true'
         run: npx playwright install --with-deps chromium
 
-      - name: Gate by America/Chicago 7:00 AM
-        id: local_time_gate
-        shell: bash
-        run: |
-          HOUR=$(TZ=America/Chicago date +%H)
-          MINUTE=$(TZ=America/Chicago date +%M)
-          DAY_OF_WEEK=$(TZ=America/Chicago date +%u)
-          if [[ "$HOUR" == "07" && "$MINUTE" == "00" && "$DAY_OF_WEEK" -ge 1 && "$DAY_OF_WEEK" -le 5 ]]; then
-            echo "should_run=true" >> "$GITHUB_OUTPUT"
-            echo "Running booking job at local Chicago weekday 07:00"
-          else
-            echo "should_run=false" >> "$GITHUB_OUTPUT"
-            echo "Skipping run at local Chicago time ${HOUR}:${MINUTE}, day ${DAY_OF_WEEK}"
-          fi
-
       - name: Run booking automation
-        if: steps.local_time_gate.outputs.should_run == 'true' || github.event_name == 'workflow_dispatch'
         env:
           PLAYWRIGHT_HTML_OPEN: never
           BOOKING_USER_ID: ${{ secrets.BOOKING_USER_ID }}
@@ -60,7 +67,7 @@ jobs:
         run: npx playwright test tests/example.spec.ts --project=chromium --grep "@booking" --reporter=list --workers=1
 
       - name: Upload Playwright artifacts
-        if: always() && (steps.local_time_gate.outputs.should_run == 'true' || github.event_name == 'workflow_dispatch')
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: playwright-artifacts
