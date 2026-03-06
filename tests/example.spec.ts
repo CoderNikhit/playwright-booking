@@ -48,10 +48,6 @@ test('login and book pickleball court @booking', async ({ page }) => {
   // OCRS constraints: can only book up to 7 days in advance.
   // Also, account-level weekly reservation caps may hide/disable the Reserve action.
   const preferredTimes = [
-    '4:00 PM',
-    '4:30 PM',
-    '5:00 PM',
-    '5:30 PM',
     '6:00 PM',
     '6:30 PM',
     '7:00 PM',
