@@ -3,8 +3,8 @@ name: Daily Booking
 on:
   schedule:
     # Trigger at both possible UTC offsets for 7:00 AM America/Chicago.
-    - cron: '0 12 * * *'
-    - cron: '0 13 * * *'
+    - cron: '0 12 * * 1-5'
+    - cron: '0 13 * * 1-5'
   workflow_dispatch:
 
 jobs:
