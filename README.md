@@ -1,4 +1,4 @@
-# Pickleball Reservation Automation
+# Telfair Booking
 
 This repository contains a Playwright automation that signs in, navigates to the reservation calendar, and attempts to book an available court slot.
 
@@ -33,8 +33,9 @@ Do not edit code. Update GitHub repository secrets:
 
 Workflow file: `.github/workflows/booking.yml`
 
-- Runs daily at 7:00 AM Chicago time.
-- Uses dual UTC cron entries plus a Chicago-time gate to handle CST/CDT changes.
+- Runs in a narrow 6:55-7:05 AM Chicago window on weekdays (GitHub's 5-minute schedule granularity).
+- Pre-warms before 7:00 and waits until exactly 7:00:00 local time before booking attempt.
+- Uses UTC cron entries plus a Chicago-time gate to handle CST/CDT changes.
 
 ## Run Locally (Optional)
 

@@ -1,7 +1,7 @@
 {
-  "name": "playwright-tests",
+  "name": "telfair-booking",
   "version": "1.0.0",
-  "description": "Playwright automated tests",
+  "description": "Telfair booking automation project",
   "scripts": {
     "test": "playwright test",
     "test:ui": "playwright test --ui",
